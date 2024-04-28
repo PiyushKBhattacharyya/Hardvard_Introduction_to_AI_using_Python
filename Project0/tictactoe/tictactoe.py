@@ -1,4 +1,5 @@
 import math
+from copy import deepcopy
 
 X = "X"
 O = "O"
@@ -13,118 +14,153 @@ def initial_state():
             [EMPTY, EMPTY, EMPTY],
             [EMPTY, EMPTY, EMPTY]]
 
+
 def player(board):
     """
     Returns player who has the next turn on a board.
     """
-    x_count = 0
-    o_count = 0
+    Xcount = 0
+    Ocount = 0
+
     for row in board:
-        x_count += row.count(X)
-        o_count += row.count(O)
-    if x_count > o_count:
-        return O
-    else:
+        Xcount += row.count(X)
+        Ocount += row.count(O)
+
+    if Xcount <= Ocount:
         return X
+    else:
+        return O
+
 
 def actions(board):
     """
     Returns set of all possible actions (i, j) available on the board.
     """
-    possible_actions = set()
-    for i in range(3):
-        for j in range(3):
-            if board[i][j] is None:
-                possible_actions.add((i, j))
-    return possible_actions
+
+    possible_moves = set()
+
+    for row_index, row in enumerate(board):
+        for column_index, item in enumerate(row):
+            if item == None:
+                possible_moves.add((row_index, column_index))
+
+    return possible_moves
+
 
 def result(board, action):
     """
     Returns the board that results from making move (i, j) on the board.
     """
-    new_board = [row.copy() for row in board]
-    new_board[action[0]][action[1]] = player(board)
+    player_move = player(board)
+
+    new_board = deepcopy(board)
+    i, j = action
+
+    if i < 0 or i >= len(board) or j < 0 or j >= len(board[0]):
+        raise Exception("Invalid move: Out of bounds")
+    elif board[i][j] != None:
+        raise Exception("Invalid move: Cell already occupied")
+    else:
+        new_board[i][j] = player_move
+
     return new_board
+
 
 def winner(board):
     """
     Returns the winner of the game, if there is one.
     """
-    for row in board:
-        if row.count(row[0]) == 3 and row[0] is not None:
-            return row[0]
-
-    for col in range(3):
-        check = []
+    for player in (X, O):
+        # check vertical
         for row in board:
-            check.append(row[col])
-        if check.count(check[0]) == 3 and check[0] is not None:
-            return check[0]
+            if row == [player] * 3:
+                return player
 
-    if board[0][0] == board[1][1] == board[2][2] and board[0][0] is not None:
-        return board[0][0]
+        # check horizontal
+        for i in range(3):
+            column = [board[x][i] for x in range(3)]
+            if column == [player] * 3:
+                return player
 
-    if board[0][2] == board[1][1] == board[2][0] and board[0][2] is not None:
-        return board[0][2]
+        # check diagonal
+        if [board[i][i] for i in range(0, 3)] == [player] * 3:
+            return player
 
+        elif [board[i][~i] for i in range(0, 3)] == [player] * 3:
+            return player
     return None
+
 
 def terminal(board):
     """
     Returns True if game is over, False otherwise.
     """
-    if winner(board) is not None:
+    # game is won by one of the players
+    if winner(board) != None:
         return True
 
+    # moves still possible
     for row in board:
-        if None in row:
+        if EMPTY in row:
             return False
 
+    # no possible moves
     return True
+
 
 def utility(board):
     """
     Returns 1 if X has won the game, -1 if O has won, 0 otherwise.
     """
-    if winner(board) == X:
+
+    win_player = winner(board)
+
+    if win_player == X:
         return 1
-    elif winner(board) == O:
+    elif win_player == O:
         return -1
     else:
         return 0
+
 
 def minimax(board):
     """
     Returns the optimal action for the current player on the board.
     """
+
+    def max_value(board):
+        optimal_move = ()
+        if terminal(board):
+            return utility(board), optimal_move
+        else:
+            v = -5
+            for action in actions(board):
+                minval = min_value(result(board, action))[0]
+                if minval > v:
+                    v = minval
+                    optimal_move = action
+            return v, optimal_move
+
+    def min_value(board):
+        optimal_move = ()
+        if terminal(board):
+            return utility(board), optimal_move
+        else:
+            v = 5
+            for action in actions(board):
+                maxval = max_value(result(board, action))[0]
+                if maxval < v:
+                    v = maxval
+                    optimal_move = action
+            return v, optimal_move
+
+    curr_player = player(board)
+
     if terminal(board):
         return None
 
-    if player(board) == X:
-        max_eval = -math.inf
-        for action in actions(board):
-            eval = minimax(result(board, action))[0]
-            max_eval = max(max_eval, eval)
-        return None, max_eval
+    if curr_player == X:
+        return max_value(board)[1]
 
     else:
-        min_eval = math.inf
-        for action in actions(board):
-            eval = minimax(result(board, action))[0]
-            min_eval = min(min_eval, eval)
-        return None, min_eval
-
-    optimal_action = None
-    optimal_eval = -math.inf if player(board) == X else math.inf
-    for action in actions(board):
-        eval = utility(result(board, action))
-        if player(board) == X:
-            if eval > optimal_eval:
-                optimal_eval = eval
-                optimal_action = action
-        else:
-            if eval < optimal_eval:
-                optimal_eval = eval
-                optimal_action = action
-
-    return optimal_action, optimal_eval
+        return min_value(board)[1]

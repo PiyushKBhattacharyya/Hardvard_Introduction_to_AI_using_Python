@@ -91,44 +91,48 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
-    # Create a queue for BFS
+
+    start = Node(state=source, parent=None, action=None)
     frontier = QueueFrontier()
-    # Create a set to store explored nodes
+    frontier.add(start)
+
     explored = set()
-    # Create a dictionary to store the previous node for each node
-    previous = {source: None}
 
-    # Add the source node to the frontier and explored set
-    frontier.add(Node(source))
-    explored.add(source)
+    while True:
+        if frontier.empty():
+            return None
 
-    while not frontier.empty():
-        # Get the current node from the frontier
-        current = frontier.get()
+        node = frontier.remove()
 
-        # If the target is found, return the path
-        if current.state == target:
-            path = [current.state]
-            while current.parent is not None:
-                current = current.parent
-                path.append(current.state)
-            return path[::-1]
+        if node.state == target:
+            rt = []
 
-        # Get the neighbors of the current node
-        neighbors = neighbors_for_person(current.state)
+            while node.parent is not None:
+                rt.append((node.action, node.state))
+                node = node.parent
 
-        # Add the neighbors to the frontier and previous dictionary
-        for neighbor in neighbors:
-            if neighbor[1] not in explored:
-                frontier.add(Node(neighbor[1], parent=current))
-                explored.add(neighbor[1])
-                previous[neighbor[1]] = current.state
+            rt.reverse()
+            return rt
 
-    # If no path is found, return None
-    return None
+        explored.add(node.state)
 
-    # TODO
-    raise NotImplementedError
+        # find neighbours
+        neighbours = neighbors_for_person(node.state)
+
+        # add neighbours to frontier
+        for action, state in neighbours:
+            if not frontier.contains_state(state) and state not in explored:
+                child = Node(state=state, parent=node, action=action)
+                if child.state == target:
+                    rt = []
+
+                    while child.parent is not None:
+                        rt.append((child.action, child.state))
+                        child = child.parent
+
+                    rt.reverse()
+                    return rt
+                frontier.add(child)
 
 
 def person_id_for_name(name):
