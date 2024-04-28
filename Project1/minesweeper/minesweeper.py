@@ -108,6 +108,8 @@ class Sentence():
         """
         if self.count == len(self.cells):
             return self.cells
+        else:
+            return set()
 
     def known_safes(self):
         """
