@@ -4,15 +4,15 @@ import itertools
 class Sentence():
 
     def evaluate(self, model):
-        """Evaluates the logical sentence."""
+        "Evaluates the logical sentence."
         raise Exception("nothing to evaluate")
 
     def formula(self):
-        """Returns string formula representing logical sentence."""
+        "Returns string formula representing logical sentence."
         return ""
 
     def symbols(self):
-        """Returns a set of all symbols in the logical sentence."""
+        "Returns a set of all symbols in the logical sentence."
         return set()
 
     @classmethod
@@ -22,9 +22,9 @@ class Sentence():
 
     @classmethod
     def parenthesize(cls, s):
-        """Parenthesizes an expression if not already parenthesized."""
+        "Parenthesizes an expression if not already parenthesized."
         def balanced(s):
-            """Checks if a string has balanced parentheses."""
+            "Checks if a string has balanced parentheses."
             count = 0
             for c in s:
                 if c == "(":
