@@ -91,6 +91,41 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
+    # Create a queue for BFS
+    frontier = QueueFrontier()
+    # Create a set to store explored nodes
+    explored = set()
+    # Create a dictionary to store the previous node for each node
+    previous = {source: None}
+
+    # Add the source node to the frontier and explored set
+    frontier.add(Node(source))
+    explored.add(source)
+
+    while not frontier.empty():
+        # Get the current node from the frontier
+        current = frontier.get()
+
+        # If the target is found, return the path
+        if current.state == target:
+            path = [current.state]
+            while current.parent is not None:
+                current = current.parent
+                path.append(current.state)
+            return path[::-1]
+
+        # Get the neighbors of the current node
+        neighbors = neighbors_for_person(current.state)
+
+        # Add the neighbors to the frontier and previous dictionary
+        for neighbor in neighbors:
+            if neighbor[1] not in explored:
+                frontier.add(Node(neighbor[1], parent=current))
+                explored.add(neighbor[1])
+                previous[neighbor[1]] = current.state
+
+    # If no path is found, return None
+    return None
 
     # TODO
     raise NotImplementedError
