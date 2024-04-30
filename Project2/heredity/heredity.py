@@ -3,34 +3,13 @@ import itertools
 import sys
 
 PROBS = {
+    # Unconditional probabilities for having a gene
+    "gene": {2: 0.01, 1: 0.03, 0: 0.96},
 
-    # Unconditional probabilities for having gene
-    "gene": {
-        2: 0.01,
-        1: 0.03,
-        0: 0.96
-    },
-
-    "trait": {
-
-        # Probability of trait given two copies of gene
-        2: {
-            True: 0.65,
-            False: 0.35
-        },
-
-        # Probability of trait given one copy of gene
-        1: {
-            True: 0.56,
-            False: 0.44
-        },
-
-        # Probability of trait given no gene
-        0: {
-            True: 0.01,
-            False: 0.99
-        }
-    },
+    # Probability of trait given two copies of gene
+    "trait": {2: {True: 0.65, False: 0.35},
+              1: {True: 0.56, False: 0.44},
+              0: {True: 0.01, False: 0.99}},
 
     # Mutation probability
     "mutation": 0.01
@@ -38,24 +17,18 @@ PROBS = {
 
 
 def main():
-
     # Check for proper usage
     if len(sys.argv) != 2:
         sys.exit("Usage: python heredity.py data.csv")
+
+    # Load data from CSV file
     people = load_data(sys.argv[1])
 
     # Keep track of gene and trait probabilities for each person
     probabilities = {
         person: {
-            "gene": {
-                2: 0,
-                1: 0,
-                0: 0
-            },
-            "trait": {
-                True: 0,
-                False: 0
-            }
+            "gene": {2: 0, 1: 0, 0: 0},
+            "trait": {True: 0, False: 0}
         }
         for person in people
     }
@@ -63,7 +36,6 @@ def main():
     # Loop over all sets of people who might have the trait
     names = set(people)
     for have_trait in powerset(names):
-
         # Check if current set of people violates known information
         fails_evidence = any(
             (people[person]["trait"] is not None and
@@ -206,5 +178,71 @@ def normalize(probabilities):
     return normalized
 
 
+def test_joint_probability_simple():
+    # Define a simple family with no genes or traits
+    simple_family_data = {
+        "person1": {"name": "person1", "mother": None, "father": None, "trait": None},
+        "person2": {"name": "person2", "mother": None, "father": None, "trait": None}
+    }
+
+    # Test case where no one has a gene or trait
+    one_gene = set()
+    two_genes = set()
+    have_trait = set()
+    probability = joint_probability(simple_family_data, one_gene, two_genes, have_trait)
+
+    # The joint probability should be 1 since no gene or trait is present
+    assert probability == 1, "Joint probability is incorrect for simple family with no genes or traits"
+
+    print("Test passed: Joint probability is correct for simple family with no genes or traits")
+
+
+def test_joint_probability_multiple_children():
+    # Define a family with multiple children and no genes or traits
+    family_data = {
+        "mother": {"name": "mother", "mother": None, "father": None, "trait": None},
+        "father": {"name": "father", "mother": None, "father": None, "trait": None},
+        "child1": {"name": "child1", "mother": "mother", "father": "father", "trait": None},
+        "child2": {"name": "child2", "mother": "mother", "father": "father", "trait": None},
+        "child3": {"name": "child3", "mother": "mother", "father": "father", "trait": None}
+    }
+
+    # Test case where no one has a gene or trait
+    one_gene = set()
+    two_genes = set()
+    have_trait = set()
+    probability = joint_probability(family_data, one_gene, two_genes, have_trait)
+
+    # The joint probability should be 1 since no gene or trait is present
+    assert probability == 1, "Joint probability is incorrect for family with multiple children and no genes or traits"
+
+    print("Test passed: Joint probability is correct for family with multiple children and no genes or traits")
+
+
+def test_joint_probability_three_generation():
+    # Define a three-generation family with no genes or traits
+    three_generation_data = {
+        "grandmother": {"name": "grandmother", "mother": None, "father": None, "trait": None},
+        "grandfather": {"name": "grandfather", "mother": None, "father": None, "trait": None},
+        "mother": {"name": "mother", "mother": "grandmother", "father": "grandfather", "trait": None},
+        "father": {"name": "father", "mother": None, "father": None, "trait": None},
+        "child": {"name": "child", "mother": "mother", "father": "father", "trait": None}
+    }
+
+    # Test case where no one has a gene or trait
+    one_gene = set()
+    two_genes = set()
+    have_trait = set()
+    probability = joint_probability(three_generation_data, one_gene, two_genes, have_trait)
+
+    # The joint probability should be 1 since no gene or trait is present
+    assert probability == 1, "Joint probability is incorrect for three-generation family with no genes or traits"
+
+    print("Test passed: Joint probability is correct for three-generation family with no genes or traits")
+
+
 if __name__ == "__main__":
     main()
+    test_joint_probability_simple()
+    test_joint_probability_multiple_children()
+    test_joint_probability_three_generation()
