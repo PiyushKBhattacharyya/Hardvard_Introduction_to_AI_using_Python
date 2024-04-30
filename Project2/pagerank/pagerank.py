@@ -162,5 +162,6 @@ def iterate_pagerank(corpus, damping_factor):
 
     return old_dict
 
+
 if __name__ == "__main__":
     main()
