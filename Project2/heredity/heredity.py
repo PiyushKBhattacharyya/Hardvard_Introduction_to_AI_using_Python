@@ -131,7 +131,8 @@ def joint_probability(people, one_gene, two_genes, have_trait):
 
             for ppl in [mother, father]:
                 number = 1 if ppl in one_gene else 2 if ppl in two_genes else 0
-                perc = 0 + PROBS['mutation'] if number == 0 else 0.5 if number == 1 else 1 - PROBS['mutation']
+                perc = 0 + \
+                    PROBS['mutation'] if number == 0 else 0.5 if number == 1 else 1 - PROBS['mutation']
                 percentages[ppl] = perc
 
             if gene_number == 0:
@@ -139,7 +140,8 @@ def joint_probability(people, one_gene, two_genes, have_trait):
                 probability *= (1 - percentages[mother]) * (1 - percentages[father])
             elif gene_number == 1:
                 # 1, one of parents gave gene
-                probability *= (1 - percentages[mother]) * percentages[father] + percentages[mother] * (1 - percentages[father])
+                probability *= (1 - percentages[mother]) * percentages[father] + \
+                    percentages[mother] * (1 - percentages[father])
             else:
                 # 2, both of parents gave gene
                 probability *= percentages[mother] * percentages[father]
