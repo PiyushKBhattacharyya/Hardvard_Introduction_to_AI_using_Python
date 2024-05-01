@@ -153,7 +153,6 @@ class CrosswordCreator():
         # return bolean if revision was made
         return revision_made
 
-
     def ac3(self, arcs=None):
         """
         Update `self.domains` such that each variable is arc consistent.
