@@ -162,14 +162,16 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
-        if not arcs:
-            # no arcs provided, start with an initial queue of all of the arcs in the problem
+        if arcs is None:
+            # If arcs is None, start with an initial queue of all of the arcs in the problem
             queue = []
-            # populating queue
+            # Populating queue
             for variable1 in self.domains:
                 for variable2 in self.crossword.neighbors(variable1):
                     if self.crossword.overlaps[variable1, variable2] is not None:
                         queue.append((variable1, variable2))
+        else:
+            queue = arcs
 
         while len(queue) > 0:
             x, y = queue.pop(0)
@@ -186,44 +188,45 @@ class CrosswordCreator():
 
         return True
 
-    def assignment_complete(self, assignment):
-        """
-        Return True if `assignment` is complete (i.e., assigns a value to each
-        crossword variable); return False otherwise.
-        """
-        for variable in self.domains:
-            if variable not in assignment:
-                return False
-        return True
 
-    def consistent(self, assignment):
-        """
-        Return True if `assignment` is consistent (i.e., words fit in crossword
-        puzzle without conflicting characters); return False otherwise.
-        """
-        # all values are distinct, every value is the correct length,
-        # and there are no conflicts between neighboring variables.
+        def assignment_complete(self, assignment):
+            """
+            Return True if `assignment` is complete (i.e., assigns a value to each
+            crossword variable); return False otherwise.
+            """
+            for variable in self.domains:
+                if variable not in assignment:
+                    return False
+            return True
 
-        # check if all values are distinct
-        words = [*assignment.values()]
-        if len(words) != len(set(words)):
-            return False
+        def consistent(self, assignment):
+            """
+            Return True if `assignment` is consistent (i.e., words fit in crossword
+            puzzle without conflicting characters); return False otherwise.
+            """
+            # all values are distinct, every value is the correct length,
+            # and there are no conflicts between neighboring variables.
 
-        # check if every value is the correct length
-        for variable in assignment:
-            if variable.length != len(assignment[variable]):
+            # check if all values are distinct
+            words = [*assignment.values()]
+            if len(words) != len(set(words)):
                 return False
 
-        # check if there are any conflicts between neighbouring variables
-        for variable in assignment:
-            for neighbour in self.crossword.neighbors(variable):
-                if neighbour in assignment:
-                    x, y = self.crossword.overlaps[variable, neighbour]
-                    if assignment[variable][x] != assignment[neighbour][y]:
-                        return False
+            # check if every value is the correct length
+            for variable in assignment:
+                if variable.length != len(assignment[variable]):
+                    return False
 
-        # all cases checked, no conflicts, can return True
-        return True
+            # check if there are any conflicts between neighbouring variables
+            for variable in assignment:
+                for neighbour in self.crossword.neighbors(variable):
+                    if neighbour in assignment:
+                        x, y = self.crossword.overlaps[variable, neighbour]
+                        if assignment[variable][x] != assignment[neighbour][y]:
+                            return False
+
+            # all cases checked, no conflicts, can return True
+            return True
 
     def order_domain_values(self, var, assignment):
         """
