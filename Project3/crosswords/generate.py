@@ -154,14 +154,14 @@ class CrosswordCreator():
         return revision_made
 
     def ac3(self, arcs=None):
-    """
-    Update `self.domains` such that each variable is arc consistent.
-    If `arcs` is None, begin with initial list of all arcs in the problem.
-    Otherwise, use `arcs` as the initial list of arcs to make consistent.
+        """
+        Update `self.domains` such that each variable is arc consistent.
+        If `arcs` is None, begin with initial list of all arcs in the problem.
+        Otherwise, use `arcs` as the initial list of arcs to make consistent.
 
-    Return True if arc consistency is enforced and no domains are empty;
-    return False if one or more domains end up empty.
-    """
+        Return True if arc consistency is enforced and no domains are empty;
+        return False if one or more domains end up empty.
+        """
         if not arcs:
             # no arcs provided, start with an initial queue of all of the arcs in the problem
             queue = []
