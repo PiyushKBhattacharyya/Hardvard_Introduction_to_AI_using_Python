@@ -298,4 +298,3 @@ class NimAI():
                 winner = "Human" if game.winner == human_player else "AI"
                 print(f"Winner is {winner}")
                 return
-    `
