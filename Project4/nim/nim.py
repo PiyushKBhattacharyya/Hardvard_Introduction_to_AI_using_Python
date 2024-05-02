@@ -136,8 +136,15 @@ class NimAI():
         """
         max_reward = 0
 
-        for sta, q in self.q.items():
-            if sta[0] == state and q > max_reward:
+        available_moves = Nim.available_actions(state)
+
+        for move in available_moves:
+            try:
+                q = self.q[tuple(state), move]
+            except KeyError:
+                q = 0
+
+            if q > max_reward:
                 max_reward = q
 
         return max_reward
@@ -183,7 +190,6 @@ class NimAI():
                 return random.choice(tuple(available_moves))
             else:
                 return best_action
-
 
     def train(n):
         """
@@ -242,7 +248,6 @@ class NimAI():
 
         # Return the trained AI
         return player
-
 
     def play(ai, human_player=None):
         """
